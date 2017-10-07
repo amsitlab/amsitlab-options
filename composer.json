@@ -1,0 +1,27 @@
+{
+    "name": "amsitlab/options",
+    "description": "Simple OOP options resolve",
+    "type": "library",
+    "homepage": "https://github.com/amsitlab/amsitlab-options",
+    "keywords": [
+	    "library",
+	    "options",
+	    "oop"
+    ],
+    "require": {
+        "php": ">= 5.3"
+    },
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "amsit",
+            "email": "amsit.14@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+	"psr-4": {
+		"Amsitlab\\Library\\Options\\": "src/"
+	}
+    }
+}
