@@ -34,7 +34,7 @@ class Options implements ArrayAccess {
 
 	/**
 	 * Options collect
-	 * @var string[] $filterType
+	 * @var mixed[] $options with type string as key/id
 	 */
 	protected $options = [];
 
@@ -44,7 +44,7 @@ class Options implements ArrayAccess {
 	 * filtering value type
 	 * string key, callable value
 	 *
-	 * @var string[]
+	 * @var callable[] $filterType
 	 */
 	protected $filterType = [
 		'string' => 'is_string',
@@ -68,7 +68,7 @@ class Options implements ArrayAccess {
 	 * Constructor
 	 * Set options an array type
 	 *
-	 * @param string[] $options
+	 * @param mixed[] $options with type string as key/id.
 	 * @see \Amsitlab\Library\Options\Options::set() for details.
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class Options implements ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed $val
-	 * @throws Exception if option key ($key) not string
+	 * @throws \InvalidArgumentException if option key ($key) not string
 	 * @return void
 	 */
 	public function append( $key, $val){
@@ -108,9 +108,10 @@ class Options implements ArrayAccess {
 
 
 	/**
-	 * Rrmoving options
+	 * Removing options
 	 *
 	 * @param string $key
+	 * @return void
 	 */
 	public function remove( $key){
 
@@ -147,7 +148,7 @@ class Options implements ArrayAccess {
 	 * Set options an array
 	 * with format (string key, mixed value)
 	 *
-	 * @param string[] $opt
+	 * @param mixed[] $opt with type string as key/id.
 	 * @see \Amsitlab\Library\Options\Options::append() for details.
 	 * @return void
 	 */
@@ -187,7 +188,7 @@ class Options implements ArrayAccess {
 	 *
 	 * @param string $filterName
 	 * @param callable $callback
-	 * @throws UnexpectedValueException if $filterName not an string
+	 * @throws \UnexpectedValueException if $filterName not an string
 	 * @return void
 	 */
 	public function registerFilterType($filterName, callable $callback){
@@ -211,7 +212,7 @@ class Options implements ArrayAccess {
 	 *
 	 * @param string $key options key
 	 * @param string $filterName
-	 * @throws UnexpectedValueException if filter type not set.
+	 * @throws \UnexpectedValueException if filter type not set.
 	 * @return bool
 	 */
 	public function validType( $key, $filterName){
@@ -239,7 +240,7 @@ class Options implements ArrayAccess {
 	/**
 	 * Resolve options
 	 *
-	 * @param \Amsitlab\Library\Options\OptionsAwareInterface $oai default null
+	 * @param \Amsitlab\Library\Options\OptionsAwareInterface $oai (as Oai) default null
 	 * @return string[]
 	 */
 	public function resolve(Oai $oai=null){
@@ -283,12 +284,13 @@ class Options implements ArrayAccess {
 
 		$return = true;
 
-		$debug = 0;
+		// string $key options key
+		// mixed[] $value
 		foreach($data as $key => $value){
 
 			
 
-			//if option not set use default options 
+			//if option not set use default options (if set) 
 			if(!isset($this->options[$key]) && isset($value[Oai::FLAG_DEFAULT])){
 
 				$this->options[$key] = $value[Oai::FLAG_DEFAULT];
@@ -405,6 +407,7 @@ class Options implements ArrayAccess {
 	 * @param string $key
 	 * @param mixed[] $value
 	 * @see \Amsitlab\Library\Options\Options::withOai() for details.
+	 * @see \Amsitlab\Library\Options\Options::validType() for details.
 	 * @throws InvalidArgumentException if type is invalid
 	 *
 	 * @return bool
@@ -414,6 +417,8 @@ class Options implements ArrayAccess {
 		if(isset($value[Oai::FLAG_ALLOW_TYPE])){
 			$types = (array)$value[Oai::FLAG_ALLOW_TYPE];
 			foreach($types as $type){
+				// $key is options key
+
 				if(!$this->validType($key,$type)){
 					$msg = sprintf('Invalid type option "%s", expect type to be one of ( %s ), %s given',$key,implode(', ', $types),gettype($this->options[$key]));
 					throw new InvalidArgumentException($msg);
@@ -438,7 +443,8 @@ class Options implements ArrayAccess {
 	 *
 	 * @param string $key
 	 * @param mixed[] $value
-	 * @see \Amsitlab\Library\Options\Options::withOai() for details.
+	 * @see \Amsitlab\Library\Options\Options::withOai() for details
+	 * @throws \InvalidArgumentException .
 	 * @return bool
 	 */
 	protected function ensureNormalize($key, $value){
@@ -479,7 +485,7 @@ class Options implements ArrayAccess {
 	 * @inheritdoc
 	 */
 	public function offsetExists($key){
-		return isste($this->options[$key]);
+		return isset($this->options[$key]);
 	}
 
 
@@ -499,12 +505,13 @@ class Options implements ArrayAccess {
 
 
 
+
 	/**
 	 * @inheritdoc
 	 */
 	public function offsetSet($key,$val){
 
-		$this->options[$key] = $val;
+		$this->append($key,$val);
 	}
 
 
